@@ -31,15 +31,15 @@ pyenv install 3.11.3
 pyenv versions
 
 # virtualenvを生成
-pyenv virtualenv 3.11.3 fastapi
+pyenv virtualenv 3.11.3 django_restapi
 ```
 
 プロジェクトのRootディレクトリーを生成して使いたいPythonを指定します。
 
 ```sh
-mkdir fast_api
-cd fast_api
-pyenv local fastapi
+mkdir django_restapi
+cd django_restapi
+pyenv local
 ```
 
 これでこのプロジェクトに入ると自動でPython 3.11.3の仮装環境が用意されました。
@@ -47,47 +47,65 @@ pyenv local fastapi
 ## プロジェクトの生成及びスタート
 
 ```sh
-cd fast_api
-pip install fastapi
-pip install uvicorn
-```
-
-main.pyを作成して以下のコードを入力してください。
-
-```python:main.py
-from fastapi import FastAPI
-
-app = FastAPI()
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
-```
-
-uvicornでサーバーを立ち上げます。
-
-```sh
-uvicorn main:app --reload
-```
-
-上記のFastAPIの公式サイトで詳細を確認してください。
-
-## ライブラリーをインストールする。
-
-pip freezeで生成したrequirements.txtを用いてライブラリーをインストールします。
-
-```sh
+cd django_restapi
 pip install -r requirements.txt
 ```
 
-ライブラリーを追加したり、アップデートした際にはrequirements.txtファイルを更新してください。
+Databaseマイグレーションファイルを生成します。
 
 ```sh
-pip freeze > requirements.txt
+python manage.py makemigrations
 ```
+
+Databaseマイグレーションを行います。
+
+```sh
+python manage.py migrate
+```
+
+Database管理用のsuper userを生成します。
+
+```sh
+python manage.py createsuperuser
+```
+
+django RESTサーバーを立ち上げます。
+
+```sh
+python manage.py runserver
+```
+
+## サーバーの確認
+
+Djangoの場合はadmin（管理ツール）をデフォルトで提供していて、マイグレーションを実行することでモデルファイルを元に自動でテーブルを生成します。そして、そのテーブルは管理ツールで操ることができます。
+
+* 管理ツール
+
+http://localhost:8000/admin
+
+上記で生成したsuper userでログインします。
+
+![管理画面](./doc/admin01.png)
+
+Addボタン押してデータを追加します。
+
+![管理画面](./doc/admin02.png)
+
+DjangoだけではなくDjango REST Frameworkというライブラリーもインストールしないといけません。
+pip install -r requirements.txtでライブラリーをインストールしたら、特に問題はありません。
+
+* apiのルート
+
+http://localhost:8000/api
+
+* Taskの場合
+
+http://localhost:8000/api/tasks
+
+![api画面](./doc/api01.png)
+
+* Tagの場合
+
+http://localhost:8000/api/tags
+
+![api画面](./doc/api02.png)
